@@ -1,3 +1,4 @@
+-- not updated to latest table format
 SELECT 
     COUNT(*) AS `Count`,
     ROUND(SUM(InitialAmount), 0) AS `Amount`,
