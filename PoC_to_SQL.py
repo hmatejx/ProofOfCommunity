@@ -1,11 +1,12 @@
+import hashlib
 import json
 import glob
 import re
 from pathlib import Path
 from decimal import Decimal
+from typing import Text
 import pymysql
 from alive_progress import alive_bar
-
 
 
 # should the upload to the DB be forced from scratch
@@ -46,6 +47,17 @@ def connect_db():
 def close_db():
     cursor.execute("COMMIT")
     connection.close()
+
+
+# get file SHA1 hash
+def get_file_sha1(filename):
+    h  = hashlib.sha1()
+    b  = bytearray(128*1024)
+    mv = memoryview(b)
+    with open(filename, 'rb', buffering=0) as f:
+        for n in iter(lambda : f.readinto(mv), 0):
+            h.update(mv[:n])
+    return h.hexdigest()
 
 
 # get the date of the first interest transaction in the CSV file
@@ -157,9 +169,13 @@ def get_transactions(fileid):
 # main workhorse function that processes all transactions
 def process_records(filename, name):
 
+    # get file hash
+    hash = get_file_sha1(filename)
+
     # get the number of records in the file
     lines = get_num_records(filename)
-    print("\t\t{} lines...".format(lines), flush=True)
+
+    print("\tSHA1: {}, {} lines...".format(hash, lines), flush=True)
 
     # get the current file Id in the Files table (used as foreign key)
     fileId, version = get_file_info(name)
