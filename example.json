@@ -1,0 +1,76 @@
+{
+  "ETH": {
+    "interestCoin": "ETH",
+    "totalInterestInCoin": "0.000000228385421424",
+    "totalInterestInUsd": "0.000705410212672364520453552",
+    "distributionRuleUsed": "InterestWithThreshold_US",
+    "interest_on_first_n_coins": "2.2838542142422573157886884530828274e-7",
+    "earningInterestInCel": false,
+    "loyaltyTier": {
+      "title": "NONE",
+      "level": 0,
+      "minimum_cel_percentage": "0",
+      "maximum_cel_percentage": "0.05",
+      "interest_bonus": "0",
+      "loan_interest_bonus": "0.05"
+    },
+    "distributionData": [
+      {
+        "type": "initialBalance",
+        "dateCoefficient": "0.01923076923076923077",
+        "date": "2021-09-17T05:00:00.000Z",
+        "value": "0.000188512194934172",
+        "newBalance": "0.000188512194934172",
+        "originalInterestCoin": null,
+        "regInterestRateBasis": "0",
+        "regInterestRateAmount": "0",
+        "specInterestRateBasis": "0.000188512194934172",
+        "specInterestRateAmount": "1.88874718385968484622939604120054124e-7",
+        "totalInterest": "1.88874718385968484622939604120054124e-7",
+        "threshold": "100"
+      },
+      {
+        "type": "interest",
+        "dateCoefficient": "0.01923070563695563696",
+        "date": "2021-09-17T05:00:01.000Z",
+        "value": "0.000009910225382823",
+        "newBalance": "0.000198422420316995",
+        "originalInterestCoin": "ETH",
+        "regInterestRateBasis": "0",
+        "regInterestRateAmount": "0",
+        "specInterestRateBasis": "0.000009910225382823",
+        "specInterestRateAmount": "9.929250673626960780240376393573968e-9",
+        "totalInterest": "9.929250673626960780240376393573968e-9",
+        "threshold": "100"
+      },
+      {
+        "type": "deposit",
+        "dateCoefficient": "0.00235821759259259259",
+        "date": "2021-09-23T08:23:53.740Z",
+        "value": "0.04469632",
+        "newBalance": "0.044894742420316995",
+        "originalInterestCoin": null,
+        "regInterestRateBasis": "0",
+        "regInterestRateAmount": "0",
+        "specInterestRateBasis": "0.04469632",
+        "specInterestRateAmount": "0.00000549153006851851851248120448",
+        "totalInterest": "0.00000549153006851851851248120448",
+        "threshold": "100"
+      },
+      {
+        "type": "withdrawal",
+        "dateCoefficient": "0.00234896469271469271",
+        "date": "2021-09-23T08:28:44.941Z",
+        "value": "-0.044630669110607672",
+        "newBalance": "0.000264073309709323",
+        "originalInterestCoin": null,
+        "regInterestRateBasis": "0",
+        "regInterestRateAmount": "0",
+        "specInterestRateBasis": "-0.044630669110607672",
+        "specInterestRateAmount": "-0.000005461948616153888226305515615205345352",
+        "totalInterest": "-0.000005461948616153888226305515615205345352",
+        "threshold": "100"
+      }
+    ]
+  }
+}
