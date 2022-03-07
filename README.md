@@ -1,6 +1,6 @@
 # ProofOfCommunity
 
-A set of tool to verify the regularly published [Celsius](https://www.celsius.netowrk) Proof of Community (#PoC) data and ingest it into a (MySQL) database for further analysis.
+A set of tool to verify the regularly published [Celsius](https://www.celsius.network) Proof of Community (#PoC) data and ingest it into a (MySQL) database for further analysis.
 
 **Example #PoC summary for the period of 18-25th of February:**
 ![ProofOfCommunity](/img/ProofOfCommunity.png)
