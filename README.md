@@ -41,7 +41,7 @@ Once you have installed the required software, perform the following high-level 
 
 3. Change the DB access configuration (host, username, password, ...) in the `PoC_to_SQL.py` file in the function `connect_db()`.
 
-4. Run the `PoC_to_SQL.py` ingest script from the main folder with `python3 PoC_to_SQL.py`. You should see progress being printed for each CSV file. ![ingest](img/Example_ingest.gif)
+4. Run the `PoC_to_SQL.py` ingest script from the main folder with `python3 PoC_to_SQL.py`. You should see progress being printed for each CSV file. ![ingest](img/example_ingest.gif)
 
 In case you run the upload script multiple times you can control the behavior by changing the `__FORCE_FILE_RESCAN` variable. If this variable is set to `True`, the CSV files will be re-scanned and every transaction that is not yet within the DB will be pushed into the DB. This is especially useful during development and debugging, where the script might stop or crash because it encounters an unknown structure of the CSV file. After implementing the fix the script can be simply re-run and all already processed transactions are quickly skipped.
 
