@@ -1,25 +1,29 @@
+USE Celsius;
+
 SELECT
     *
 FROM
     (SELECT
         fileId,
-            originalInterestCoin,
+            /* originalInterestCoin */
 			/* interestCoin */
-            COUNT(*) as numUsers,
+            COUNT(DISTINCT txId) AS numUsers,
+            COUNT(*) AS numPositions,
 			/* totalInterestInCoin */
             IFNULL(SUM(totalInterestInUsd), 0) AS totalInterestInUsd,
-            CASE WHEN originalInterestCoin = 'CEL' THEN
-				1.0
-			ELSE
-				IFNULL(SUM(earningInterestInCel * totalInterestInUsd) / SUM(totalInterestInUsd), 0)
-			END AS fractionInterestEarnedInCel,
+            IFNULL(SUM(CASE WHEN originalInterestCoin = 'CEL' THEN
+					totalInterestInUsd
+				ELSE
+					earningInterestInCel * totalInterestInUsd
+				END)/SUM(totalInterestInUsd), 0) AS fractionInterestEarnedInCel
+			/*
             CASE WHEN originalInterestCoin = 'CEL' THEN
 				1.0
 			ELSE
 				IFNULL(SUM(earningInterestInCel) / COUNT(*), 0)
-			END AS fractionCoinsEarningInCel,
+			END AS fractionCoinsEarningInCel, */
             /* loyaltyTier */
-            IFNULL(SUM(initialBalance), 0) AS initialBalance,
+            /*IFNULL(SUM(initialBalance), 0) AS initialBalance,
             IFNULL(SUM(deposit), 0) AS deposit,
             IFNULL(SUM(withdrawal), 0) AS withdrawal,
             IFNULL(SUM(deposit), 0) + IFNULL(SUM(withdrawal), 0) AS net,
@@ -36,12 +40,10 @@ FROM
             IFNULL(SUM(locked_deposit), 0) AS locked_deposit,
             IFNULL(SUM(referred_award), 0) AS referred_award,
             IFNULL(SUM(referrer_award), 0) AS referrer_award,
-            IFNULL(SUM(operation_cost), 0) AS operation_cost
+            IFNULL(SUM(operation_cost), 0) AS operation_cost*/
     FROM
         Celsius.Rewards
-    /* WHERE
-        originalInterestCoin = 'CEL' */
-    GROUP BY originalInterestCoin , fileId) AS R
+    GROUP BY fileId) AS R
         LEFT JOIN
     Files AS F ON R.fileId = F.fileId
 ORDER BY F.date ASC

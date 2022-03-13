@@ -7,7 +7,7 @@ FROM
         fileId,
             originalInterestCoin,
 			/* interestCoin */
-            COUNT(*) as numUsers,
+            COUNT(*) AS numUsers,
 			/* totalInterestInCoin */
             IFNULL(SUM(totalInterestInUsd), 0) AS totalInterestInUsd,
             CASE WHEN originalInterestCoin = 'CEL' THEN
@@ -43,4 +43,4 @@ FROM
     GROUP BY originalInterestCoin , fileId) AS R
         LEFT JOIN
     Files AS F ON R.fileId = F.fileId
-ORDER BY F.date ASC;
+ORDER BY F.date ASC, originalInterestCoin ASC;

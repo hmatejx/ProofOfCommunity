@@ -166,6 +166,25 @@ def get_transactions(fileid):
     return set([TxId[0] for TxId in cursor.fetchall()])
 
 
+# insert the entry into the DB
+def insert(dbentry):
+    values = ["txid", "originalInterestCoin", "interestCoin", "totalInterestInCoin", "totalInterestInUsd",
+              "earningInterestInCel", "loyaltyTier","initialBalance", "interest", "deposit", "withdrawal",
+              "loan_interest_payment", "loan_principal_payment", "loan_principal_liquidation",
+              "loan_interest_liquidation", "collateral", "swap_in", "swap_out", "inbound_transfer", "outbound_transfer",
+              "promo_code_reward", "locked_deposit", "referred_award", "referrer_award", "operation_cost", "fileId"]
+    query = "INSERT INTO Rewards(" + ','.join(values) + ") VALUES (" + "%s,"*(len(values)-1) +\
+            "%s) ON DUPLICATE KEY UPDATE txId=txId"
+
+    cursor.execute(query, tuple(dbentry.get(k) for k in values))
+    insert.counter += 1
+
+    # commit
+    if insert.counter % __COMMIT_EVERY == 0:
+        cursor.execute("Commit")
+insert.counter = 0
+
+
 # main workhorse function that processes all transactions
 def process_records(filename, name):
 
@@ -192,21 +211,20 @@ def process_records(filename, name):
             # skip header
             line = file.readline()
 
-            inserted = 0
             while True:
                 # Get a line from file
                 line = file.readline()
-
-                # we hit end of file
                 if not line:
                     break
+
+                # update progress bar
+                bar()
 
                 # get a TxId record
                 txid, txinfo = line.split(",", 1)
 
                 # skip already uplodaded transactions
                 if txid in existingTxIds and not __OVERWRITE_EXISTING:
-                    bar()
                     continue
 
                 # parse the transaction record JSON
@@ -215,107 +233,37 @@ def process_records(filename, name):
                     txinfo = txinfo.get("data")
 
                 # loop over all coins in the record
-                for coinitem in txinfo:
-                    if version == 1:
-                        originalInterestCoin = coinitem.get("originalInterestCoin")
-                        coindata = coinitem
-                    elif version == 0:
-                        originalInterestCoin = coinitem
-                        coindata = txinfo.get(originalInterestCoin)
-
-                    totalInterestInUsd = float(coindata.get("totalInterestInUsd"))
-                    totalInterestInCoin = float(coindata.get("totalInterestInCoin"))
-                    earningInterestInCel = 1 if coindata.get("earningInterestInCel") else 0
-                    interestCoin = 'CEL' if earningInterestInCel else originalInterestCoin
-                    loyaltyTier = coindata.get("loyaltyTier").get("level")
-                    distributionData = coindata.get("distributionData")
+                for citem in txinfo:
+                    dbentry = {'txid': txid, 'fileId': fileId}
+                    coindata = citem if version == 1 else txinfo.get(citem)
+                    dbentry["interestCoin"] = coindata.get("interestCoin")
+                    dbentry["originalInterestCoin"] = coindata.get("originalInterestCoin") if version == 1 else citem
+                    dbentry["totalInterestInCoin"] = coindata.get("totalInterestInCoin")
+                    dbentry["totalInterestInUsd"] = coindata.get("totalInterestInUsd")
+                    dbentry["earningInterestInCel"] = coindata.get("earningInterestInCel")
+                    dbentry["loyaltyTier"] = coindata.get("loyaltyTier").get("level")
 
                     # process the distribution data
-                    initialBalance = None
-                    interest = None
-                    deposit = None
-                    withdrawal = None
-                    loan_interest_payment = None
-                    loan_principal_payment = None
-                    loan_principal_liquidation = None
-                    loan_interest_liquidation = None
-                    collateral = None
-                    swap_in = None
-                    swap_out = None
-                    inbound_transfer = None
-                    outbound_transfer = None
-                    promo_code_reward = None
-                    locked_deposit = None
-                    referred_award = None
-                    referrer_award = None
-                    operation_cost = None
-                    for distitem in distributionData:
-                        type = distitem.get("type")
-                        value = Decimal(distitem.get("value"))
-                        if type == "initialBalance":
-                            initialBalance = value
-                        elif type == "interest":
-                            interest = value
-                        elif type == "deposit":
-                            deposit = value if deposit is None else deposit + value
-                        elif type == "withdrawal":
-                            withdrawal = value if withdrawal is None else withdrawal + value
-                        elif type == "loan_interest_payment":
-                            loan_interest_payment = value if loan_interest_payment is None else loan_interest_payment + value
-                        elif type == "loan_principal_payment":
-                            loan_principal_payment = value if loan_principal_payment is None else loan_principal_payment + value
-                        elif type == "loan_principal_liquidation":
-                            loan_principal_liquidation = value if loan_principal_liquidation is None else loan_principal_liquidation + value
-                        elif type == "loan_interest_liquidation":
-                            loan_interest_liquidation = value if loan_interest_liquidation is None else loan_interest_liquidation + value
-                        elif type == "collateral":
-                            collateral = value if collateral is None else collateral + value
-                        elif type == "swap_in":
-                            swap_in = value if swap_in is None else swap_in + value
-                        elif type == "swap_out":
-                            swap_out = value if swap_out is None else swap_out + value
-                        elif type == "inbound_transfer":
-                            inbound_transfer = value if inbound_transfer is None else inbound_transfer + value
-                        elif type == "outbound_transfer":
-                            outbound_transfer = value if outbound_transfer is None else outbound_transfer + value
-                        elif type == "promo_code_reward":
-                            promo_code_reward = value if promo_code_reward is None else promo_code_reward + value
-                        elif type == "locked_deposit":
-                            locked_deposit = value if locked_deposit is None else locked_deposit + value
-                        elif type == "referred_award":
-                            referred_award = value if referred_award is None else referred_award + value
-                        elif type == "referrer_award":
-                            referrer_award = value if referrer_award is None else referrer_award + value
-                        elif type == "operation_cost":
-                            operation_cost = value if operation_cost is None else operation_cost + value
+                    distributionData = coindata.get("distributionData")
+                    for ditem in distributionData:
+                        # type can be any of the defined transaction types
+                        type = ditem.get("type")
+                        value = Decimal(ditem.get("value"))
+                        # aggregate over multiple instances of same transaction type
+                        if dbentry.get(type) is None:
+                            dbentry[type] = value
+                        else:
+                            dbentry[type] += value
 
-                    cursor.execute("INSERT INTO Rewards(" +
-                                   "txId,originalInterestCoin,interestCoin,totalInterestInCoin,totalInterestInUsd," +
-                                   "earningInterestInCel,loyaltyTier,initialBalance,interest,deposit,withdrawal," +
-                                   "loan_interest_payment,loan_principal_payment,loan_principal_liquidation," +
-                                   "loan_interest_liquidation,collateral,swap_in,swap_out,inbound_transfer,outbound_transfer," +
-                                   "promo_code_reward,locked_deposit,referred_award,referrer_award,operation_cost,fileId) " +
-                                   "VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) "+
-                                   "ON DUPLICATE KEY UPDATE txId=txId",
-                                    (txid, originalInterestCoin, interestCoin, totalInterestInCoin, totalInterestInUsd,
-                                     earningInterestInCel, loyaltyTier, initialBalance, interest, deposit, withdrawal,
-                                     loan_interest_payment, loan_principal_payment, loan_principal_liquidation,
-                                     loan_interest_liquidation, collateral, swap_in, swap_out, inbound_transfer, outbound_transfer,
-                                     promo_code_reward, locked_deposit, referred_award, referrer_award, operation_cost, fileId))
-                    inserted += 1
-
-                    # commit for TxId
-                    if inserted % __COMMIT_EVERY == 0:
-                        cursor.execute("Commit")
-
-                # update progress bar
-                bar()
+                    # insert into DB
+                    insert(dbentry)
 
     # commit remaining data
     cursor.execute("Commit")
 
 
 if __name__ == "__main__":
+
     connect_db()
 
     # get list of Celisus reward CSV files
