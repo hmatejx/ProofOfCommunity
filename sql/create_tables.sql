@@ -43,5 +43,6 @@ CREATE TABLE `Rewards` (
   PRIMARY KEY (`Id`),
   UNIQUE KEY `Id_UNIQUE` (`Id`),
   KEY `Id_IdFiles` (`fileId`),
-  KEY `Id_Coin` (`originalInterestCoin`)
+  KEY `Id_Coin` (`originalInterestCoin`),
+  KEY `Id_Coin2` (`interestCoin`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8_bin;

@@ -1,46 +1,45 @@
 USE Celsius;
 
-SELECT
-    *
+SELECT 
+    `date`,
+    numUsers,
+    numPositions,
+    695658161 AS totalCel,
+    totalCelInApp,
+    totalInterestInUsd,
+    weeklyCelBuybackInUsd,
+    weeklyCelBuybackInCel,
+    CASE
+        WHEN `date` >= CAST('2021-10-01 00:00:00' AS DATETIME) THEN weeklyCelBuybackInCel * 0.1
+        ELSE 0
+    END AS weeklyCelBurnInCel,
+    SUM(CASE
+        WHEN `date` >= CAST('2021-10-01 00:00:00' AS DATETIME) THEN weeklyCelBuybackInCel * 0.1
+        ELSE 0
+    END) OVER (ORDER BY date) AS cumulativeCelBurnInCel,
+    weeklyCelBuybackInUsd / totalInterestInUsd AS fractionInterestEarnedInCel,
+    weeklyCelBuybackInUsd / weeklyCelBuybackInCel AS priceCelInUsd,
+    totalCelInApp / numUsers AS averageCelPerUserInApp,
+    (695658161 - totalCelInApp) / numUsers AS averageCelPerUserOutside,
+    weeklyCelBuybackInCel / numUsers AS weeklyCelBuybackPerUser
 FROM
-    (SELECT
+    (SELECT 
         fileId,
-            /* originalInterestCoin */
-			/* interestCoin */
             COUNT(DISTINCT txId) AS numUsers,
             COUNT(*) AS numPositions,
-			/* totalInterestInCoin */
-            IFNULL(SUM(totalInterestInUsd), 0) AS totalInterestInUsd,
-            IFNULL(SUM(CASE WHEN originalInterestCoin = 'CEL' THEN
-					totalInterestInUsd
-				ELSE
-					earningInterestInCel * totalInterestInUsd
-				END)/SUM(totalInterestInUsd), 0) AS fractionInterestEarnedInCel
-			/*
-            CASE WHEN originalInterestCoin = 'CEL' THEN
-				1.0
-			ELSE
-				IFNULL(SUM(earningInterestInCel) / COUNT(*), 0)
-			END AS fractionCoinsEarningInCel, */
-            /* loyaltyTier */
-            /*IFNULL(SUM(initialBalance), 0) AS initialBalance,
-            IFNULL(SUM(deposit), 0) AS deposit,
-            IFNULL(SUM(withdrawal), 0) AS withdrawal,
-            IFNULL(SUM(deposit), 0) + IFNULL(SUM(withdrawal), 0) AS net,
-            IFNULL(SUM(loan_interest_payment), 0) AS loan_interest_payment,
-            IFNULL(SUM(loan_principal_payment), 0) AS loan_principal_payment,
-            IFNULL(SUM(loan_principal_liquidation), 0) AS loan_principal_liquidation,
-            IFNULL(SUM(loan_interest_liquidation), 0) AS loan_interest_liquidation,
-            IFNULL(SUM(collateral), 0) AS collateral,
-            IFNULL(SUM(swap_in), 0) AS swap_in,
-            IFNULL(SUM(swap_out), 0) AS swap_out,
-            IFNULL(SUM(inbound_transfer), 0) AS inbound_transfer,
-            IFNULL(SUM(outbound_transfer), 0) AS outbound_transfer,
-            IFNULL(SUM(promo_code_reward), 0) AS promo_code_reward,
-            IFNULL(SUM(locked_deposit), 0) AS locked_deposit,
-            IFNULL(SUM(referred_award), 0) AS referred_award,
-            IFNULL(SUM(referrer_award), 0) AS referrer_award,
-            IFNULL(SUM(operation_cost), 0) AS operation_cost*/
+            SUM(totalInterestInUsd) AS totalInterestInUsd,
+            SUM(CASE
+                WHEN originalInterestCoin = 'CEL' THEN newBalance
+                ELSE 0
+            END) AS totalCelInApp,
+            SUM(CASE
+                WHEN interestCoin = 'CEL' THEN totalInterestInCoin
+                ELSE 0
+            END) AS weeklyCelBuybackInCel,
+            SUM(CASE
+                WHEN originalInterestCoin = 'CEL' THEN totalInterestInUsd
+                ELSE earningInterestInCel * totalInterestInUsd
+            END) AS weeklyCelBuybackInUsd
     FROM
         Celsius.Rewards
     GROUP BY fileId) AS R
