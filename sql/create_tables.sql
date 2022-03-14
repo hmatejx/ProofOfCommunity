@@ -22,6 +22,7 @@ CREATE TABLE `Rewards` (
   `earningInterestInCel` tinyint(1) NOT NULL,
   `loyaltyTier` tinyint(1) DEFAULT NULL,
   `initialBalance` decimal(36,18) DEFAULT NULL,
+  `newBalance` decimal(36,18) DEFAULT NULL,
   `interest` decimal(36,18) DEFAULT NULL,
   `deposit` decimal(36,18) DEFAULT NULL,
   `withdrawal` decimal(36,18) DEFAULT NULL,
@@ -41,7 +42,6 @@ CREATE TABLE `Rewards` (
   `operation_cost` decimal(36,18) DEFAULT NULL,
   PRIMARY KEY (`Id`),
   UNIQUE KEY `Id_UNIQUE` (`Id`),
-  UNIQUE KEY `unique_index` (`txId`,`originalInterestCoin`),
   KEY `Id_IdFiles` (`fileId`),
   KEY `Id_Coin` (`originalInterestCoin`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8_bin;

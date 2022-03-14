@@ -22,6 +22,7 @@ FROM
 			END AS fractionCoinsEarningInCel,
             /* loyaltyTier */
             IFNULL(SUM(initialBalance), 0) AS initialBalance,
+            IFNULL(SUM(newBalance), 0) AS newBalance,            
             IFNULL(SUM(deposit), 0) AS deposit,
             IFNULL(SUM(withdrawal), 0) AS withdrawal,
             IFNULL(SUM(loan_interest_payment), 0) AS loan_interest_payment,

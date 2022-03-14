@@ -11,7 +11,7 @@ from alive_progress import alive_bar
 
 # should the upload to the DB be forced from scratch
 __FORCE_FILE_RESCAN = True
-# inf case a file rescan is required, should existing tx records be overwritten
+# in case a file rescan is required, should existing tx records be overwritten
 __OVERWRITE_EXISTING = False
 # how often should the DB commit, i.e. every 1000 records updated
 __COMMIT_EVERY = 2000
@@ -41,11 +41,13 @@ def connect_db():
         db = "Celsius"
     )
     cursor = connection.cursor()
+    cursor.execute("SET sql_log_bin = OFF")
 
 
 # close the DB connection
 def close_db():
     cursor.execute("COMMIT")
+    cursor.execute("SET sql_log_bin = ON")
     connection.close()
 
 
@@ -167,9 +169,9 @@ def get_transactions(fileid):
 
 
 # insert the entry into the DB
-def insert(dbentry):
+def insert_tx(dbentry):
     values = ["txid", "originalInterestCoin", "interestCoin", "totalInterestInCoin", "totalInterestInUsd",
-              "earningInterestInCel", "loyaltyTier","initialBalance", "interest", "deposit", "withdrawal",
+              "earningInterestInCel", "loyaltyTier","initialBalance", "newBalance", "interest", "deposit", "withdrawal",
               "loan_interest_payment", "loan_principal_payment", "loan_principal_liquidation",
               "loan_interest_liquidation", "collateral", "swap_in", "swap_out", "inbound_transfer", "outbound_transfer",
               "promo_code_reward", "locked_deposit", "referred_award", "referrer_award", "operation_cost", "fileId"]
@@ -177,12 +179,12 @@ def insert(dbentry):
             "%s) ON DUPLICATE KEY UPDATE txId=txId"
 
     cursor.execute(query, tuple(dbentry.get(k) for k in values))
-    insert.counter += 1
+    insert_tx.counter += 1
 
     # commit
-    if insert.counter % __COMMIT_EVERY == 0:
+    if insert_tx.counter % __COMMIT_EVERY == 0:
         cursor.execute("Commit")
-insert.counter = 0
+insert_tx.counter = 0
 
 
 # main workhorse function that processes all transactions
@@ -255,8 +257,11 @@ def process_records(filename, name):
                         else:
                             dbentry[type] += value
 
+                    # take the new balance from the last distribution data information
+                    dbentry["newBalance"] = distributionData[-1].get("newBalance")
+
                     # insert into DB
-                    insert(dbentry)
+                    insert_tx(dbentry)
 
     # commit remaining data
     cursor.execute("Commit")

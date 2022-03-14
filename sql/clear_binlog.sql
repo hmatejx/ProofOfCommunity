@@ -1,0 +1,3 @@
+USE Celsius;
+
+PURGE BINARY LOGS BEFORE NOW();
