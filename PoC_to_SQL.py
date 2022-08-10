@@ -200,7 +200,7 @@ def process_records(filename, name):
 
     # get the current file Id in the Files table (used as foreign key)
     fileId, version = get_file_info(name)
-    if version not in (0, 1):
+    if version not in (0, 1, 2):
         print("Error! Unknown file version.")
         exit()
 
@@ -231,15 +231,15 @@ def process_records(filename, name):
 
                 # parse the transaction record JSON
                 txinfo = json.loads(txinfo)
-                if version == 1:
+                if version in (1, 2):
                     txinfo = txinfo.get("data")
 
                 # loop over all coins in the record
                 for citem in txinfo:
                     dbentry = {'txid': txid, 'fileId': fileId}
-                    coindata = citem if version == 1 else txinfo.get(citem)
+                    coindata = citem if version in (1, 2) else txinfo.get(citem)
                     dbentry["interestCoin"] = coindata.get("interestCoin")
-                    dbentry["originalInterestCoin"] = coindata.get("originalInterestCoin") if version == 1 else citem
+                    dbentry["originalInterestCoin"] = coindata.get("originalInterestCoin") if version in (1, 2) else citem
                     dbentry["totalInterestInCoin"] = coindata.get("totalInterestInCoin")
                     dbentry["totalInterestInUsd"] = coindata.get("totalInterestInUsd")
                     dbentry["earningInterestInCel"] = coindata.get("earningInterestInCel")
