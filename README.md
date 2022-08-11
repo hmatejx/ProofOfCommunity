@@ -35,7 +35,7 @@ Other versions would most probably work as well, but were not tested.
 
 Once you have installed the required software, perform the following high-level steps.
 
-1. Download the #PoC files from the https://app.celsius.network/ site and put them into the `data` subfolder.
+1. Download the #PoC files from the https://app.celsius.network/ site and put them into the `data` subfolder. The links to the files can be found [in this comment for Issue #1](https://github.com/hmatejx/ProofOfCommunity/issues/1#issuecomment-1212384583).
 
 2. Create the required tables in the `Celsius` DB by a command such as `mysql -h hostname -u user database -p < sql/create_tables.sql`. This should work out of the box for MySQL, but may fail for various reasons. Details may vary depending on your installation and even more so if you use a different DB backend. In such cases inspection of the `create_tables.sql` should make it clear which tables need to be created.
 
