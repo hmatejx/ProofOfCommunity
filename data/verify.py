@@ -40,4 +40,4 @@ if len(missing) > 0:
     for csv in missing:
         print("\t{}".format(csv))
 else:
-    print("\nCongratulations - no missing PoC CVS files!")
+    print("\nCongratulations - no missing PoC CSV files!")
