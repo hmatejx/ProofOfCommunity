@@ -9,7 +9,7 @@ A set of tool to verify the regularly published [Celsius](https://www.celsius.ne
 
 ## Disk space
 
-Before starting, make sure you have sufficient space on your hard drive. The current 36 weeks worth of #PoC data sits at 60GB in form of CSV files.
+Before starting, make sure you have sufficient space on your hard drive. The current 55 weeks worth of #PoC data sits at 103GB in form of CSV files.
 
 When ingested into a DB, this will shrink to 13GB. Note that currently all transaction types that are documented in the `transaction_types.txt` file are handled (there may be newer transaction types comming in the future). Moreover, with more and more users joining Celsius each weak, expect each week's dump to grow in size, and consequently the DB size will grow quickly.
 
@@ -35,7 +35,7 @@ Other versions would most probably work as well, but were not tested.
 
 Once you have installed the required software, perform the following high-level steps.
 
-1. Download the #PoC files from the https://app.celsius.network/ site and put them into the `data` subfolder. The links to the files can be found [in this comment for Issue #1](https://github.com/hmatejx/ProofOfCommunity/issues/1#issuecomment-1212384583).
+1. Download the #PoC files from the https://app.celsius.network/ site and put them into the `data` subfolder. The URL links to the CSV files can also be found [in this comment for Issue #1](https://github.com/hmatejx/ProofOfCommunity/issues/1#issuecomment-1212384583).
 
 2. Create the required tables in the `Celsius` DB by a command such as `mysql -h hostname -u user database -p < sql/create_tables.sql`. This should work out of the box for MySQL, but may fail for various reasons. Details may vary depending on your installation and even more so if you use a different DB backend. In such cases inspection of the `create_tables.sql` should make it clear which tables need to be created.
 
