@@ -2,8 +2,6 @@ import hashlib
 import glob
 import csv
 
-from grapheme import length
-
 # get file SHA1 hash
 def get_file_sha1(filename):
     h  = hashlib.sha1()
