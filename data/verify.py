@@ -28,4 +28,3 @@ for csv in csvfiles:
     hash = get_file_sha1(csv)
     exphash = hashdict[csv][2:]
     print("{}  {} {} {}".format(csv, hash, exphash, "✓" if hash == exphash else "×"))
-    exit()
